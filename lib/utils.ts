@@ -59,3 +59,58 @@ export function getMarketColor(market: string): string {
   };
   return colors[market] ?? '#6b7280';
 }
+
+/* ============================================
+   Trade Risk Math
+   ============================================ */
+
+/** Calculate PnL from trade parameters */
+export function calcPnl(
+  direction: 'long' | 'short' | 'call' | 'put',
+  entry: number,
+  exit: number,
+  size: number,
+  fees: number
+): number {
+  const isLong = direction === 'long' || direction === 'call';
+  const rawPnl = isLong ? (exit - entry) * size : (entry - exit) * size;
+  return rawPnl - fees;
+}
+
+/** Calculate Risk:Reward ratio */
+export function calcRiskReward(
+  direction: 'long' | 'short' | 'call' | 'put',
+  entry: number,
+  sl: number,
+  tp: number
+): number | null {
+  const isLong = direction === 'long' || direction === 'call';
+  const risk = isLong ? entry - sl : sl - entry;
+  const reward = isLong ? tp - entry : entry - tp;
+  if (risk <= 0) return null;
+  return reward / risk;
+}
+
+/** Calculate breakeven price accounting for fees */
+export function calcBreakeven(
+  entry: number,
+  fees: number,
+  size: number,
+  direction: 'long' | 'short' | 'call' | 'put'
+): number {
+  if (size <= 0) return entry;
+  const feePerUnit = fees / size;
+  const isLong = direction === 'long' || direction === 'call';
+  return isLong ? entry + feePerUnit : entry - feePerUnit;
+}
+
+/** Calculate risk as a percentage of account balance */
+export function calcRiskPercent(riskAmount: number, accountBalance: number): number {
+  if (accountBalance <= 0) return 0;
+  return (Math.abs(riskAmount) / accountBalance) * 100;
+}
+
+/** Format a price with the given decimal precision */
+export function formatPrice(value: number, precision: number): string {
+  return value.toFixed(precision);
+}

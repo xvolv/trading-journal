@@ -171,6 +171,65 @@ body {
 }
 
 /* ============================================
+   Trade Form Inputs
+   ============================================ */
+
+@layer components {
+  .input-trade {
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--color-bg-input);
+    border: 1px solid var(--color-surface-border);
+    border-radius: 0;
+    color: var(--color-text-primary);
+    transition: border-color var(--duration-fast) var(--ease-smooth),
+                box-shadow var(--duration-fast) var(--ease-smooth);
+  }
+
+  .input-trade::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .input-trade:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+
+  /* Hide spin buttons on number inputs */
+  .input-trade[type="number"]::-webkit-inner-spin-button,
+  .input-trade[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .input-trade[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
+/* Pulsing red border for rule violations */
+@keyframes pulse-danger {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+}
+
+.pulse-danger {
+  animation: pulse-danger 1.5s ease-in-out infinite;
+}
+
+/* Glow effects */
+.glow-profit {
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.15);
+}
+
+.glow-loss {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.15);
+}
+
+/* ============================================
    Gradient Text
    ============================================ */
 
