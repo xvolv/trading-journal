@@ -1,10 +1,13 @@
-import { MOCK_TRADES } from '@/lib/mock-data';
+'use client';
+
+import { useTrades } from '@/context/TradesContext';
 import { PnlBadge } from '@/components/ui/PnlBadge';
 import { timeAgo, getMarketColor } from '@/lib/utils';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 export function RecentTradesList() {
-  const recentTrades = MOCK_TRADES.slice(0, 8);
+  const { trades } = useTrades();
+  const recentTrades = trades.slice(0, 8);
 
   return (
     <div className="card-solid p-5">

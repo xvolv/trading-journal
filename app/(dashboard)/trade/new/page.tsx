@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, Save, Zap, CheckCircle } from 'lucide-react';
 import { useNewTradeForm } from '@/hooks/useNewTradeForm';
+import { useTrades } from '@/context/TradesContext';
 import { SymbolSearch } from '@/components/trade/SymbolSearch';
 import { DirectionChips } from '@/components/trade/DirectionChips';
 import { PriceInput } from '@/components/trade/PriceInput';
@@ -18,9 +19,11 @@ import {
   EMOTION_TAG_OPTIONS,
   MISTAKE_TAG_OPTIONS,
 } from '@/lib/mock-data';
+import type { Trade } from '@/types/types';
 
 export default function NewTradePage() {
   const router = useRouter();
+  const { addTrade } = useTrades();
   const {
     form,
     setField,
@@ -39,30 +42,42 @@ export default function NewTradePage() {
   const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
-    if (!isValid) return;
-    // For now, log to console — backend integration later
-    console.log('💾 Trade saved:', {
-      symbol: form.symbol?.symbol,
-      direction: form.direction,
-      entry: form.entryPrice,
-      exit: form.exitPrice,
+    if (!isValid || !form.symbol) return;
+
+    const exitPrice = form.exitPrice ? parseFloat(form.exitPrice) : null;
+    const entryPrice = parseFloat(form.entryPrice);
+    const sl = form.stopLoss ? parseFloat(form.stopLoss) : null;
+    const tp = form.takeProfit ? parseFloat(form.takeProfit) : null;
+    const fees = preview.feeImpact ?? 0;
+
+    const trade: Trade = {
+      id: `t-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      market: form.symbol.market,
+      symbol: form.symbol.symbol,
+      direction: form.direction!,
+      entryPrice,
+      exitPrice,
       size: effectiveQty,
-      sl: form.stopLoss,
-      tp: form.takeProfit,
-      fees: form.feesPercent,
-      tags: {
-        strategy: form.strategyTags,
-        emotion: form.emotionTags,
-        mistake: form.mistakeTags,
-      },
+      stopLoss: sl,
+      takeProfit: tp,
+      pnl: preview.potentialPnl ?? 0,
+      fees,
+      riskRewardRatio: preview.riskReward,
+      strategyTags: form.strategyTags,
+      emotionTags: form.emotionTags,
+      mistakeTags: form.mistakeTags,
       notes: form.notes,
-      hasScreenshot: !!form.screenshotDataUrl,
-      preview,
-    });
+      screenshotUrl: form.screenshotDataUrl,
+      isOpen: exitPrice === null,
+      openedAt: new Date().toISOString(),
+      closedAt: exitPrice !== null ? new Date().toISOString() : null,
+    };
+
+    addTrade(trade);
 
     setSaved(true);
     setTimeout(() => {
-      router.push('/dashboard');
+      router.push('/trades');
     }, 1200);
   };
 
