@@ -1,8 +1,8 @@
 'use client';
 
-import { MOCK_CALENDAR_DAYS } from '@/lib/mock-data';
+import type { CalendarDay } from '@/types/types';
 import { formatPnl } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -32,16 +32,22 @@ function getMonthGrid(year: number, month: number) {
   return grid;
 }
 
-export function CalendarHeatmap() {
+interface CalendarHeatmapProps {
+  days: CalendarDay[];
+}
+
+export function CalendarHeatmap({ days }: CalendarHeatmapProps) {
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
 
-  const year = 2026;
-  const month = 1; // February (0-indexed)
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-indexed
   const grid = getMonthGrid(year, month);
   const monthName = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' });
 
-  const dayDataMap = new Map(
-    MOCK_CALENDAR_DAYS.map((d) => [d.date, d])
+  const dayDataMap = useMemo(
+    () => new Map(days.map((d) => [d.date, d])),
+    [days]
   );
 
   return (

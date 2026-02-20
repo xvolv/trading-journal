@@ -9,27 +9,48 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
-import { MOCK_EQUITY_CURVE } from '@/lib/mock-data';
+import type { EquityDataPoint } from '@/types/types';
 import { formatCurrency } from '@/lib/utils';
 
-export function EquityCurve() {
+interface EquityCurveProps {
+  data: EquityDataPoint[];
+}
+
+export function EquityCurve({ data }: EquityCurveProps) {
+  if (data.length === 0) {
+    return (
+      <div className="card-solid flex h-[340px] items-center justify-center p-5">
+        <p className="text-sm text-[var(--color-text-muted)]">No trade data yet</p>
+      </div>
+    );
+  }
+
+  const latestEquity = data[data.length - 1].equity;
+  const firstEquity = data[0].equity;
+  const changePercent = ((latestEquity / firstEquity - 1) * 100).toFixed(1);
+  const isPositive = latestEquity >= firstEquity;
+
   return (
     <div className="card-solid p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-sm font-medium text-[var(--color-text-tertiary)]">Equity Curve</h3>
           <p className="mt-0.5 text-xl font-bold text-[var(--color-text-primary)]">
-            {formatCurrency(MOCK_EQUITY_CURVE[MOCK_EQUITY_CURVE.length - 1].equity)}
+            {formatCurrency(latestEquity)}
           </p>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-profit-bg)] px-3 py-1 text-xs font-semibold text-[var(--color-profit-light)]">
-          +{((MOCK_EQUITY_CURVE[MOCK_EQUITY_CURVE.length - 1].equity / MOCK_EQUITY_CURVE[0].equity - 1) * 100).toFixed(1)}%
+        <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
+          isPositive
+            ? 'bg-[var(--color-profit-bg)] text-[var(--color-profit-light)]'
+            : 'bg-[var(--color-loss-bg)] text-[var(--color-loss-light)]'
+        }`}>
+          {isPositive ? '+' : ''}{changePercent}%
         </span>
       </div>
 
       <div className="h-[280px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={MOCK_EQUITY_CURVE} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="var(--color-profit)" stopOpacity={0.25} />

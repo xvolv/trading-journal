@@ -19,9 +19,8 @@ import {
 } from '@/lib/utils';
 import {
   DEFAULT_ACCOUNT_BALANCE,
-  MOCK_DISCIPLINE_RULES,
-  MOCK_DASHBOARD_STATS,
-} from '@/lib/mock-data';
+  DEFAULT_DISCIPLINE_RULES,
+} from '@/lib/constants';
 
 const INITIAL_FORM: NewTradeFormData = {
   symbol: null,
@@ -152,11 +151,10 @@ export function useNewTradeForm() {
     }
 
     // Rule violations
-    const stats = MOCK_DASHBOARD_STATS;
-    const rules = MOCK_DISCIPLINE_RULES;
+    const rules = DEFAULT_DISCIPLINE_RULES;
 
     for (const rule of rules) {
-      if (rule.type === 'max-trades' && stats.totalTrades >= rule.threshold) {
+      if (rule.type === 'max-trades' && rule.currentValue >= rule.threshold) {
         result.ruleViolations.push(`Max trades reached (${rule.threshold}/day)`);
       }
       if (rule.type === 'daily-loss' && result.potentialPnl !== null && result.potentialPnl < 0) {

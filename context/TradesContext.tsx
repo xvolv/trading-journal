@@ -9,11 +9,10 @@ import {
   type ReactNode,
 } from 'react';
 import type { Trade } from '@/types/types';
-import { MOCK_TRADES } from '@/lib/mock-data';
 
 /* ============================================
    TradesContext — shared trade state
-   (fetches from API, falls back to mock data)
+   (fetches from API)
    ============================================ */
 
 interface TradesContextValue {
@@ -44,9 +43,9 @@ export function TradesProvider({ children }: { children: ReactNode }) {
           setTrades(data);
         }
       } catch (err) {
-        console.warn('Failed to fetch trades from API, using mock data:', err);
+        console.warn('Failed to fetch trades from API:', err);
         if (!cancelled) {
-          setTrades(MOCK_TRADES);
+          setTrades([]);
         }
       } finally {
         if (!cancelled) setLoading(false);

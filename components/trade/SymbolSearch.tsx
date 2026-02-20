@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, Star, Clock, TrendingUp } from 'lucide-react';
 import type { SymbolInfo } from '@/types/types';
-import { SYMBOLS_LIST, RECENT_SYMBOLS } from '@/lib/mock-data';
+import { SYMBOLS_LIST, RECENT_SYMBOLS } from '@/lib/constants';
 import { getMarketColor } from '@/lib/utils';
 
 interface SymbolSearchProps {

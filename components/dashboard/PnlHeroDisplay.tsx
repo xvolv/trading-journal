@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import type { PnlPeriod } from '@/types/types';
-import { MOCK_DASHBOARD_STATS } from '@/lib/mock-data';
+import { useState } from 'react';
 import { formatPnl } from '@/lib/utils';
 
 const PERIOD_LABELS: Record<PnlPeriod, string> = {
@@ -11,13 +10,19 @@ const PERIOD_LABELS: Record<PnlPeriod, string> = {
   month: 'This Month',
 };
 
-export function PnlHeroDisplay() {
+interface PnlHeroDisplayProps {
+  netPnlToday: number;
+  netPnlWeek: number;
+  netPnlMonth: number;
+}
+
+export function PnlHeroDisplay({ netPnlToday, netPnlWeek, netPnlMonth }: PnlHeroDisplayProps) {
   const [period, setPeriod] = useState<PnlPeriod>('today');
 
   const pnlValues: Record<PnlPeriod, number> = {
-    today: MOCK_DASHBOARD_STATS.netPnlToday,
-    week: MOCK_DASHBOARD_STATS.netPnlWeek,
-    month: MOCK_DASHBOARD_STATS.netPnlMonth,
+    today: netPnlToday,
+    week: netPnlWeek,
+    month: netPnlMonth,
   };
 
   const currentPnl = pnlValues[period];

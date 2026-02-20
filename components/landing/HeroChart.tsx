@@ -1,7 +1,7 @@
 'use client';
 
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
-import { HERO_CHART_DATA } from '@/lib/mock-data';
+import { HERO_CHART_DATA } from '@/lib/constants';
 
 export function HeroChart() {
   return (

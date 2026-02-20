@@ -18,7 +18,7 @@ import {
   STRATEGY_TAG_OPTIONS,
   EMOTION_TAG_OPTIONS,
   MISTAKE_TAG_OPTIONS,
-} from '@/lib/mock-data';
+} from '@/lib/constants';
 import type { Trade } from '@/types/types';
 
 export default function NewTradePage() {
