@@ -2,52 +2,52 @@
 
 /* ============================================
    TRADE FORGE — Design System
-   Dark-first, premium trading journal aesthetic
+   Light-default with soft dark mode
    ============================================ */
 
 @theme {
-  /* --- Background Colors --- */
-  --color-bg-primary: #0a0e17;
-  --color-bg-secondary: #111827;
-  --color-bg-tertiary: #1a2332;
-  --color-bg-card: #151d2e;
-  --color-bg-card-hover: #1c2740;
-  --color-bg-elevated: #1e293b;
-  --color-bg-input: #0f172a;
+  /* --- Light Theme (Default) — Background Colors --- */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8f9fb;
+  --color-bg-tertiary: #f1f3f5;
+  --color-bg-card: #ffffff;
+  --color-bg-card-hover: #f8f9fb;
+  --color-bg-elevated: #ffffff;
+  --color-bg-input: #f4f5f7;
 
   /* --- Surface / Glass --- */
-  --color-surface-glass: rgba(255, 255, 255, 0.03);
-  --color-surface-glass-hover: rgba(255, 255, 255, 0.06);
-  --color-surface-border: rgba(255, 255, 255, 0.06);
-  --color-surface-border-hover: rgba(255, 255, 255, 0.12);
+  --color-surface-glass: rgba(0, 0, 0, 0.02);
+  --color-surface-glass-hover: rgba(0, 0, 0, 0.04);
+  --color-surface-border: #e5e7eb;
+  --color-surface-border-hover: #d1d5db;
 
   /* --- Text Colors --- */
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-text-tertiary: #64748b;
-  --color-text-muted: #475569;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4b5563;
+  --color-text-tertiary: #6b7280;
+  --color-text-muted: #9ca3af;
 
   /* --- Profit / Loss --- */
   --color-profit: #10b981;
-  --color-profit-light: #34d399;
-  --color-profit-bg: rgba(16, 185, 129, 0.1);
-  --color-profit-glow: rgba(16, 185, 129, 0.4);
+  --color-profit-light: #059669;
+  --color-profit-bg: rgba(16, 185, 129, 0.08);
+  --color-profit-glow: rgba(16, 185, 129, 0.3);
   --color-loss: #ef4444;
-  --color-loss-light: #f87171;
-  --color-loss-bg: rgba(239, 68, 68, 0.1);
-  --color-loss-glow: rgba(239, 68, 68, 0.4);
+  --color-loss-light: #dc2626;
+  --color-loss-bg: rgba(239, 68, 68, 0.08);
+  --color-loss-glow: rgba(239, 68, 68, 0.3);
 
   /* --- Accent / Brand --- */
   --color-accent: #6366f1;
-  --color-accent-light: #818cf8;
-  --color-accent-bg: rgba(99, 102, 241, 0.1);
-  --color-accent-glow: rgba(99, 102, 241, 0.4);
+  --color-accent-light: #4f46e5;
+  --color-accent-bg: rgba(99, 102, 241, 0.08);
+  --color-accent-glow: rgba(99, 102, 241, 0.3);
 
   /* --- Warning / Info --- */
-  --color-warning: #f59e0b;
-  --color-warning-bg: rgba(245, 158, 11, 0.1);
-  --color-info: #3b82f6;
-  --color-info-bg: rgba(59, 130, 246, 0.1);
+  --color-warning: #d97706;
+  --color-warning-bg: rgba(245, 158, 11, 0.08);
+  --color-info: #2563eb;
+  --color-info-bg: rgba(59, 130, 246, 0.08);
 
   /* --- Sizing --- */
   --sidebar-width: 260px;
@@ -63,11 +63,11 @@
   --radius-full: 9999px;
 
   /* --- Shadows --- */
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
-  --shadow-elevated: 0 8px 40px rgba(0, 0, 0, 0.4);
-  --shadow-glow-profit: 0 0 40px rgba(16, 185, 129, 0.15);
-  --shadow-glow-loss: 0 0 40px rgba(239, 68, 68, 0.15);
-  --shadow-glow-accent: 0 0 40px rgba(99, 102, 241, 0.15);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-glow-profit: 0 0 40px rgba(16, 185, 129, 0.1);
+  --shadow-glow-loss: 0 0 40px rgba(239, 68, 68, 0.1);
+  --shadow-glow-accent: 0 0 40px rgba(99, 102, 241, 0.1);
 
   /* --- Animations --- */
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
@@ -75,6 +75,40 @@
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --duration-slow: 400ms;
+}
+
+/* ============================================
+   Dark Theme Override
+   ============================================ */
+
+.dark {
+  --color-bg-primary: #18181b;
+  --color-bg-secondary: #1f1f23;
+  --color-bg-tertiary: #27272a;
+  --color-bg-card: #1f1f23;
+  --color-bg-card-hover: #27272a;
+  --color-bg-elevated: #27272a;
+  --color-bg-input: #18181b;
+
+  --color-surface-glass: rgba(255, 255, 255, 0.04);
+  --color-surface-glass-hover: rgba(255, 255, 255, 0.07);
+  --color-surface-border: #2e2e33;
+  --color-surface-border-hover: #3f3f46;
+
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-tertiary: #71717a;
+  --color-text-muted: #52525b;
+
+  --color-profit-light: #34d399;
+  --color-loss-light: #f87171;
+  --color-accent-light: #818cf8;
+  --color-profit-bg: rgba(16, 185, 129, 0.12);
+  --color-loss-bg: rgba(239, 68, 68, 0.12);
+  --color-accent-bg: rgba(99, 102, 241, 0.12);
+
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 8px 40px rgba(0, 0, 0, 0.5);
 }
 
 /* ============================================
@@ -101,6 +135,8 @@ body {
   font-feature-settings: "cv11", "ss01", "cv01";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--duration-normal) var(--ease-smooth),
+              color var(--duration-normal) var(--ease-smooth);
 }
 
 /* ============================================
@@ -111,7 +147,7 @@ body {
   background: var(--color-surface-glass);
   backdrop-filter: blur(16px);
   border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   transition: all var(--duration-normal) var(--ease-smooth);
 }
 
@@ -125,7 +161,7 @@ body {
 .card-solid {
   background: var(--color-bg-card);
   border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   transition: all var(--duration-normal) var(--ease-smooth);
 }
 
@@ -139,13 +175,20 @@ body {
    ============================================ */
 
 .gradient-text {
-  background: linear-gradient(135deg, #f1f5f9 0%, #818cf8 50%, #6366f1 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #7c3aed 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-profit {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .gradient-text-profit {
   background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -153,6 +196,13 @@ body {
 }
 
 .gradient-text-loss {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .gradient-text-loss {
   background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -247,12 +297,12 @@ body {
   border: none;
   cursor: pointer;
   transition: all var(--duration-normal) var(--ease-smooth);
-  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.25);
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
 }
 
 .btn-primary:active {
