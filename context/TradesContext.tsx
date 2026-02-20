@@ -13,73 +13,122 @@ import { MOCK_TRADES } from '@/lib/mock-data';
 
 /* ============================================
    TradesContext — shared trade state
+   (fetches from API, falls back to mock data)
    ============================================ */
 
 interface TradesContextValue {
   trades: Trade[];
-  addTrade: (trade: Trade) => void;
-  deleteTrade: (id: string) => void;
-  deleteMultiple: (ids: string[]) => void;
-  updateTrade: (id: string, updates: Partial<Trade>) => void;
+  loading: boolean;
+  addTrade: (trade: Trade) => Promise<void>;
+  deleteTrade: (id: string) => Promise<void>;
+  deleteMultiple: (ids: string[]) => Promise<void>;
+  updateTrade: (id: string, updates: Partial<Trade>) => Promise<void>;
 }
 
 const TradesContext = createContext<TradesContextValue | null>(null);
 
-const STORAGE_KEY = 'trade-forge-trades';
-
-function loadTrades(): Trade[] {
-  if (typeof window === 'undefined') return MOCK_TRADES;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as Trade[];
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch {
-    // corrupted data — fall through
-  }
-  return MOCK_TRADES;
-}
-
-function saveTrades(trades: Trade[]) {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
-  } catch {
-    // storage full — silently fail
-  }
-}
-
 export function TradesProvider({ children }: { children: ReactNode }) {
-  const [trades, setTrades] = useState<Trade[]>(loadTrades);
+  const [trades, setTrades] = useState<Trade[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Persist on every change
+  // ── Fetch trades from API on mount ──────────────────────
   useEffect(() => {
-    saveTrades(trades);
-  }, [trades]);
+    let cancelled = false;
 
-  const addTrade = useCallback((trade: Trade) => {
+    async function fetchTrades() {
+      try {
+        const res = await fetch('/api/trades');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data: Trade[] = await res.json();
+        if (!cancelled) {
+          setTrades(data);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch trades from API, using mock data:', err);
+        if (!cancelled) {
+          setTrades(MOCK_TRADES);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchTrades();
+    return () => { cancelled = true; };
+  }, []);
+
+  // ── Add trade via API ──────────────────────────────────
+  const addTrade = useCallback(async (trade: Trade) => {
+    // Optimistic update
     setTrades((prev) => [trade, ...prev]);
+
+    try {
+      const res = await fetch('/api/trades', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(trade),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      // Replace the optimistic entry with the server response (has real ID)
+      const created: Trade = await res.json();
+      setTrades((prev) =>
+        prev.map((t) => (t.id === trade.id ? created : t)),
+      );
+    } catch (err) {
+      console.warn('Failed to save trade to API, keeping local copy:', err);
+    }
   }, []);
 
-  const deleteTrade = useCallback((id: string) => {
+  // ── Delete trade via API ───────────────────────────────
+  const deleteTrade = useCallback(async (id: string) => {
     setTrades((prev) => prev.filter((t) => t.id !== id));
+
+    try {
+      const res = await fetch(`/api/trades/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      console.warn('Failed to delete trade from API:', err);
+    }
   }, []);
 
-  const deleteMultiple = useCallback((ids: string[]) => {
+  // ── Delete multiple trades via API ─────────────────────
+  const deleteMultiple = useCallback(async (ids: string[]) => {
     const idSet = new Set(ids);
     setTrades((prev) => prev.filter((t) => !idSet.has(t.id)));
+
+    // Fire all deletes in parallel
+    await Promise.allSettled(
+      ids.map((id) =>
+        fetch(`/api/trades/${id}`, { method: 'DELETE' }).catch((err) =>
+          console.warn(`Failed to delete trade ${id}:`, err),
+        ),
+      ),
+    );
   }, []);
 
-  const updateTrade = useCallback((id: string, updates: Partial<Trade>) => {
+  // ── Update trade via API ───────────────────────────────
+  const updateTrade = useCallback(async (id: string, updates: Partial<Trade>) => {
     setTrades((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...updates } : t))
+      prev.map((t) => (t.id === id ? { ...t, ...updates } : t)),
     );
+
+    try {
+      const res = await fetch(`/api/trades/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      console.warn('Failed to update trade in API:', err);
+    }
   }, []);
 
   return (
     <TradesContext.Provider
-      value={{ trades, addTrade, deleteTrade, deleteMultiple, updateTrade }}
+      value={{ trades, loading, addTrade, deleteTrade, deleteMultiple, updateTrade }}
     >
       {children}
     </TradesContext.Provider>

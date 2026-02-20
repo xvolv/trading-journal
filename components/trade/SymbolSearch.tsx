@@ -15,25 +15,43 @@ export function SymbolSearch({ value, onSelect }: SymbolSearchProps) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [focusIdx, setFocusIdx] = useState(-1);
+  const [symbolsList, setSymbolsList] = useState<SymbolInfo[]>(SYMBOLS_LIST);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Fetch symbols from API on mount, fallback to mock
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/symbols')
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data: SymbolInfo[]) => {
+        if (!cancelled) setSymbolsList(data);
+      })
+      .catch((err) => {
+        console.warn('Failed to fetch symbols from API, using mock:', err);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return [];
     const q = query.toLowerCase();
-    return SYMBOLS_LIST.filter(
+    return symbolsList.filter(
       (s) =>
         s.symbol.toLowerCase().includes(q) ||
         s.market.toLowerCase().includes(q)
     ).slice(0, 10);
-  }, [query]);
+  }, [query, symbolsList]);
 
   const recentSymbols = useMemo(
     () =>
-      RECENT_SYMBOLS.map((s) => SYMBOLS_LIST.find((sym) => sym.symbol === s)!).filter(
+      RECENT_SYMBOLS.map((s) => symbolsList.find((sym) => sym.symbol === s)!).filter(
         Boolean
       ),
-    []
+    [symbolsList]
   );
 
   const showList = isOpen && (filtered.length > 0 || (query === '' && recentSymbols.length > 0));

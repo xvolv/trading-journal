@@ -41,7 +41,7 @@ export default function NewTradePage() {
 
   const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!isValid || !form.symbol) return;
 
     const exitPrice = form.exitPrice ? parseFloat(form.exitPrice) : null;
@@ -73,7 +73,7 @@ export default function NewTradePage() {
       closedAt: exitPrice !== null ? new Date().toISOString() : null,
     };
 
-    addTrade(trade);
+    await addTrade(trade);
 
     setSaved(true);
     setTimeout(() => {

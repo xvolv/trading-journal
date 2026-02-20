@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Trade {
+  id              String   @id @default(cuid())
+  market          String   // crypto | forex | binary | stocks | futures
+  symbol          String
+  direction       String   // long | short | call | put
+  entryPrice      Float
+  exitPrice       Float?
+  size            Float
+  stopLoss        Float?
+  takeProfit      Float?
+  pnl             Float    @default(0)
+  fees            Float    @default(0)
+  riskRewardRatio Float?
+  strategyTags    String[] @default([])
+  emotionTags     String[] @default([])
+  mistakeTags     String[] @default([])
+  notes           String   @default("")
+  screenshotUrl   String?
+  isOpen          Boolean  @default(false)
+  openedAt        DateTime @default(now())
+  closedAt        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([openedAt])
+  @@index([market])
+  @@index([symbol])
+}
+
+model Symbol {
+  id        String @id @default(cuid())
+  symbol    String @unique
+  market    String
+  precision Int
+  mockPrice Float
+
+  @@index([market])
+}
+
+model DisciplineRule {
+  id           String  @id @default(cuid())
+  label        String
+  type         String  // daily-loss | daily-profit | max-trades | weekly-goal | monthly-goal
+  threshold    Float
+  currentValue Float   @default(0)
+  isBreached   Boolean @default(false)
+}
