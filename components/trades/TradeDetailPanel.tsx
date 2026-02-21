@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Trash2, Clock, DollarSign, Shield, Target, FileText, Image, Edit3, X, Check, Loader2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Trash2, Clock, DollarSign, Shield, Target, FileText, Image, Edit3, X, Check, Loader2, ImagePlus, ZoomIn } from 'lucide-react';
 import type { Trade } from '@/types/types';
 import { formatCurrency, formatPnl } from '@/lib/utils';
 
@@ -15,6 +15,7 @@ export function TradeDetailPanel({ trade, onDelete, onUpdate }: TradeDetailPanel
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   // Edit state
   const [editExitPrice, setEditExitPrice] = useState(String(trade.exitPrice ?? ''));
@@ -23,6 +24,8 @@ export function TradeDetailPanel({ trade, onDelete, onUpdate }: TradeDetailPanel
   const [editPnl, setEditPnl] = useState(String(trade.pnl));
   const [editFees, setEditFees] = useState(String(trade.fees));
   const [editNotes, setEditNotes] = useState(trade.notes);
+  const [editScreenshotUrl, setEditScreenshotUrl] = useState<string | null>(trade.screenshotUrl);
+  const screenshotInputRef = useRef<HTMLInputElement>(null);
 
   const openedDate = new Date(trade.openedAt);
   const closedDate = trade.closedAt ? new Date(trade.closedAt) : null;
@@ -37,6 +40,15 @@ export function TradeDetailPanel({ trade, onDelete, onUpdate }: TradeDetailPanel
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
   };
 
+  const handleScreenshotFile = (file: File) => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setEditScreenshotUrl(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleStartEdit = () => {
     setEditExitPrice(String(trade.exitPrice ?? ''));
     setEditStopLoss(String(trade.stopLoss ?? ''));
@@ -44,6 +56,7 @@ export function TradeDetailPanel({ trade, onDelete, onUpdate }: TradeDetailPanel
     setEditPnl(String(trade.pnl));
     setEditFees(String(trade.fees));
     setEditNotes(trade.notes);
+    setEditScreenshotUrl(trade.screenshotUrl);
     setIsEditing(true);
   };
 
@@ -68,6 +81,7 @@ export function TradeDetailPanel({ trade, onDelete, onUpdate }: TradeDetailPanel
     if (pnlVal !== trade.pnl) updates.pnl = pnlVal;
     if (feesVal !== trade.fees) updates.fees = feesVal;
     if (editNotes !== trade.notes) updates.notes = editNotes;
+    if (editScreenshotUrl !== trade.screenshotUrl) updates.screenshotUrl = editScreenshotUrl;
 
     if (Object.keys(updates).length > 0) {
       await onUpdate(trade.id, updates);
@@ -258,12 +272,68 @@ export function TradeDetailPanel({ trade, onDelete, onUpdate }: TradeDetailPanel
             <p className="text-xs italic text-[var(--color-text-muted)]">No notes</p>
           )}
 
-          {trade.screenshotUrl && (
-            <div className="flex items-center gap-1.5 text-xs text-[var(--color-accent-light)]">
-              <Image className="h-3 w-3" />
-              Screenshot attached
+          {/* Screenshot display / edit */}
+          {isEditing ? (
+            <div className="mt-1">
+              {editScreenshotUrl ? (
+                <div className="relative">
+                  <img
+                    src={editScreenshotUrl}
+                    alt="Chart screenshot"
+                    className="h-32 w-full border border-[var(--color-surface-border)] object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setEditScreenshotUrl(null)}
+                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center bg-black/60 text-white transition-colors hover:bg-black/80"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const file = e.dataTransfer.files[0];
+                    if (file) handleScreenshotFile(file);
+                  }}
+                  onDragOver={(e) => e.preventDefault()}
+                  onClick={() => screenshotInputRef.current?.click()}
+                  className="flex cursor-pointer items-center justify-center gap-2 border-2 border-dashed border-[var(--color-surface-border)] p-4 text-xs text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent-light)]"
+                >
+                  <ImagePlus className="h-4 w-4" />
+                  Drop or click to upload screenshot
+                </div>
+              )}
+              <input
+                ref={screenshotInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleScreenshotFile(file);
+                }}
+              />
             </div>
-          )}
+          ) : trade.screenshotUrl ? (
+            <div
+              className="group relative mt-1 cursor-pointer"
+              onClick={() => setLightboxOpen(true)}
+            >
+              <img
+                src={trade.screenshotUrl}
+                alt="Chart screenshot"
+                className="h-40 w-full border border-[var(--color-surface-border)] object-cover transition-opacity group-hover:opacity-80"
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="flex items-center gap-1.5 bg-black/70 px-3 py-1.5 text-xs font-semibold text-white">
+                  <ZoomIn className="h-3.5 w-3.5" />
+                  View full size
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)]">
             <Clock className="h-3 w-3" />
@@ -350,6 +420,28 @@ export function TradeDetailPanel({ trade, onDelete, onUpdate }: TradeDetailPanel
           </div>
         </div>
       </div>
+
+      {/* Screenshot lightbox */}
+      {lightboxOpen && trade.screenshotUrl && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm animate-fade-in"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(false)}
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center bg-white/10 text-white transition-colors hover:bg-white/20"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <img
+            src={trade.screenshotUrl}
+            alt="Chart screenshot — full size"
+            className="max-h-[90vh] max-w-[90vw] border border-white/10 object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -54,3 +54,16 @@ model DisciplineRule {
   currentValue Float   @default(0)
   isBreached   Boolean @default(false)
 }
+
+model BrokerConnection {
+  id         String    @id @default(cuid())
+  broker     String    // binance | bybit | mt5 | ibkr | demo
+  label      String
+  apiKey     String
+  apiSecret  String
+  status     String    @default("disconnected") // connected | disconnected | error
+  lastSyncAt DateTime?
+  lastError  String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}

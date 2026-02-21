@@ -130,3 +130,30 @@ export interface NavItem {
   href: string;
   icon: string;
 }
+
+/* ============================================
+   Broker Connection Types
+   ============================================ */
+
+export type BrokerType = 'binance' | 'bybit' | 'mt5' | 'ibkr' | 'demo';
+
+export interface BrokerConnection {
+  id: string;
+  broker: BrokerType;
+  label: string;
+  apiKey: string;
+  apiSecret: string;
+  status: 'connected' | 'disconnected' | 'error';
+  lastSyncAt: string | null;
+  lastError: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const BROKER_INFO: Record<BrokerType, { name: string; icon: string; markets: MarketType[]; color: string }> = {
+  binance: { name: 'Binance', icon: '₿', markets: ['crypto'], color: '#F0B90B' },
+  bybit: { name: 'Bybit', icon: '▲', markets: ['crypto'], color: '#F7A600' },
+  mt5: { name: 'MetaTrader 5', icon: 'M5', markets: ['forex', 'futures'], color: '#2962FF' },
+  ibkr: { name: 'Interactive Brokers', icon: 'IB', markets: ['stocks', 'futures'], color: '#D81B60' },
+  demo: { name: 'Demo', icon: '⚡', markets: ['crypto', 'forex', 'stocks'], color: '#00BFA5' },
+};
