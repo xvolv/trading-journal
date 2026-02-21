@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import type {
   NewTradeFormData,
   LivePreview,
@@ -10,6 +10,7 @@ import type {
   EmotionTag,
   MistakeTag,
   SizeMode,
+  DisciplineRule,
 } from '@/types/types';
 import {
   calcPnl,
@@ -17,10 +18,8 @@ import {
   calcBreakeven,
   calcRiskPercent,
 } from '@/lib/utils';
-import {
-  DEFAULT_ACCOUNT_BALANCE,
-  DEFAULT_DISCIPLINE_RULES,
-} from '@/lib/constants';
+import { DEFAULT_ACCOUNT_BALANCE } from '@/lib/constants';
+import { useTrades } from '@/context/TradesContext';
 
 const INITIAL_FORM: NewTradeFormData = {
   symbol: null,
@@ -45,6 +44,42 @@ const INITIAL_FORM: NewTradeFormData = {
 
 export function useNewTradeForm() {
   const [form, setForm] = useState<NewTradeFormData>(INITIAL_FORM);
+  const { trades } = useTrades();
+
+  // --- Fetch discipline rules & compute live values ---
+  const [fetchedRules, setFetchedRules] = useState<DisciplineRule[]>([]);
+
+  useEffect(() => {
+    fetch('/api/discipline-rules')
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setFetchedRules)
+      .catch(() => setFetchedRules([]));
+  }, []);
+
+  const liveRules: DisciplineRule[] = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const todayTrades = trades.filter(
+      (t) => !t.isOpen && (t.closedAt ?? t.openedAt).slice(0, 10) === today
+    );
+    const todayPnl = todayTrades.reduce((s, t) => s + t.pnl, 0);
+    const todayCount = todayTrades.length;
+
+    return fetchedRules.map((rule) => {
+      let currentValue = 0;
+      let isBreached = false;
+      if (rule.type === 'daily-loss') {
+        currentValue = Math.min(todayPnl, 0);
+        isBreached = currentValue <= rule.threshold;
+      } else if (rule.type === 'daily-profit') {
+        currentValue = Math.max(todayPnl, 0);
+        isBreached = currentValue >= rule.threshold;
+      } else if (rule.type === 'max-trades') {
+        currentValue = todayCount;
+        isBreached = currentValue >= rule.threshold;
+      }
+      return { ...rule, currentValue, isBreached };
+    });
+  }, [fetchedRules, trades]);
 
   // --- field updaters ---
   const setField = useCallback(
@@ -150,17 +185,15 @@ export function useNewTradeForm() {
       result.breakeven = calcBreakeven(entry, fees, effectiveQty, form.direction);
     }
 
-    // Rule violations
-    const rules = DEFAULT_DISCIPLINE_RULES;
-
-    for (const rule of rules) {
+    // Rule violations (use live rules from API + today's stats)
+    for (const rule of liveRules) {
       if (rule.type === 'max-trades' && rule.currentValue >= rule.threshold) {
         result.ruleViolations.push(`Max trades reached (${rule.threshold}/day)`);
       }
       if (rule.type === 'daily-loss' && result.potentialPnl !== null && result.potentialPnl < 0) {
         const totalLoss = rule.currentValue + result.potentialPnl;
         if (totalLoss <= rule.threshold) {
-          result.ruleViolations.push(`Daily loss limit hit (${rule.threshold})`);
+          result.ruleViolations.push(`Daily loss limit hit ($${Math.abs(rule.threshold)})`);
         }
       }
     }
