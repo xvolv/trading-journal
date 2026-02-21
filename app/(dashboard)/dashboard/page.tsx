@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useTrades } from '@/context/TradesContext';
-import { DEFAULT_ACCOUNT_BALANCE } from '@/lib/constants';
+import { useAccountBalance } from '@/hooks/useAccountBalance';
 import { PnlHeroDisplay } from '@/components/dashboard/PnlHeroDisplay';
 import { EquityCurve } from '@/components/dashboard/EquityCurve';
 import { CalendarHeatmap } from '@/components/dashboard/CalendarHeatmap';
@@ -24,6 +24,7 @@ import {
 export default function DashboardPage() {
   const { loading } = useTrades();
   const { summary, dailyPnl, cumulativePnl } = useAnalytics();
+  const [accountBalance] = useAccountBalance();
 
   // ── Compute PnL by period from daily data ───────────────
   const periodPnl = useMemo(() => {
@@ -57,10 +58,10 @@ export default function DashboardPage() {
   const equityData: EquityDataPoint[] = useMemo(() => {
     return cumulativePnl.map((p) => ({
       date: p.date,
-      equity: DEFAULT_ACCOUNT_BALANCE + p.pnl,
+      equity: accountBalance + p.pnl,
       drawdown: p.drawdown,
     }));
-  }, [cumulativePnl]);
+  }, [cumulativePnl, accountBalance]);
 
   // ── Calendar data from daily PnL ────────────────────────
   const calendarDays: CalendarDay[] = useMemo(() => {

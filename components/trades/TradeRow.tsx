@@ -6,14 +6,16 @@ import type { Trade } from '@/types/types';
 import { formatCurrency, formatPnl, getMarketColor, timeAgo } from '@/lib/utils';
 import { TradeDetailPanel } from './TradeDetailPanel';
 
+
 interface TradeRowProps {
   trade: Trade;
   isSelected: boolean;
   onToggleSelect: () => void;
   onDelete: (id: string) => void;
+  onUpdate?: (id: string, updates: Partial<Trade>) => Promise<void>;
 }
 
-export function TradeRow({ trade, isSelected, onToggleSelect, onDelete }: TradeRowProps) {
+export function TradeRow({ trade, isSelected, onToggleSelect, onDelete, onUpdate }: TradeRowProps) {
   const [expanded, setExpanded] = useState(false);
   const isLong = trade.direction === 'long' || trade.direction === 'call';
   const isProfit = trade.pnl >= 0;
@@ -136,7 +138,7 @@ export function TradeRow({ trade, isSelected, onToggleSelect, onDelete }: TradeR
       {expanded && (
         <tr>
           <td colSpan={11} className="p-0">
-            <TradeDetailPanel trade={trade} onDelete={onDelete} />
+            <TradeDetailPanel trade={trade} onDelete={onDelete} onUpdate={onUpdate} />
           </td>
         </tr>
       )}

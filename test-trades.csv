@@ -1,0 +1,6 @@
+Symbol,Direction,Entry Price,Exit Price,Size,PnL,Fees,Date,Notes
+BTC/USDT,Long,42000,43500,0.5,750,-12.50,2026-02-20,Breakout trade
+ETH/USDT,Short,2900,2850,2,100,-5.80,2026-02-19,Mean reversion setup
+SOL/USDT,Long,110,105,10,-50,-3.20,2026-02-18,Stopped out
+EUR/USD,Buy,1.0890,1.0920,10000,30,-2.00,2026-02-17,News play
+NVDA,Long,890,915,5,125,-8.50,2026-02-16,Earnings momentum

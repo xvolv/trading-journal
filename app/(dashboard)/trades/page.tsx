@@ -65,7 +65,7 @@ function sortTrades(trades: Trade[], field: SortField, dir: SortDir): Trade[] {
    ============================================ */
 
 export default function TradesPage() {
-  const { trades, deleteTrade, deleteMultiple } = useTrades();
+  const { trades, deleteTrade, deleteMultiple, updateTrade } = useTrades();
 
   // Search & filters
   const [search, setSearch] = useState('');
@@ -260,6 +260,7 @@ export default function TradesPage() {
                   isSelected={selected.has(trade.id)}
                   onToggleSelect={() => toggleSelect(trade.id)}
                   onDelete={handleDeleteSingle}
+                  onUpdate={updateTrade}
                 />
               ))}
             </tbody>
